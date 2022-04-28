@@ -1,0 +1,66 @@
+
+#content {
+    max-width: 1000px;
+    margin: auto;
+}
+
+#partition-table {
+    width: 100%;
+    /* border: 1px solid black; */
+    border-radius: 10px;
+    border-collapse: collapse;
+    
+}
+
+tr {
+    border-bottom: 1px solid black;
+}
+
+td {
+    padding: 5px;
+}
+
+#flash-size-input {
+    width: 5em;
+    display: inline-block;
+}
+
+#graphical-partition {
+    width: 100%;
+    height:40px;
+    background-color: lightgray;
+    position: relative;
+    overflow: hidden;
+    border-radius: 10px;
+}
+
+.graphical-partition-section {
+    display: inline-block;
+    position: absolute !important;
+    height: 100%;
+    background-color: teal;
+    cursor: move;
+    text-align: center;
+    line-height: 40px;
+}
+
+#part-1 {
+    width: 25%;
+    height: 40px;
+    background-color: teal;
+    color: white;
+}
+#part-2 {
+    width: 10%;
+    height: 40px;
+    background-color: palevioletred;
+    color: white;
+}
+
+.ui-draggable, .ui-droppable {
+	background-position: top;
+}
+
+.ui-icon-gripsmall-diagonal-se {
+    visibility: hidden;
+}

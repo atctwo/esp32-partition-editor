@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+    
+    <head>
+        <title>ESP32 Partition Editor</title>
+        <link rel="stylesheet" href="style.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+        
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+        <link href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet"/>
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+        
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css" integrity="sha256-XoaMnoYC5TH6/+ihMEnospgm0J1PM/nioxbOUdnM8HY=" crossorigin="anonymous">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/TableDnD/0.9.1/jquery.tablednd.js" integrity="sha256-d3rtug+Hg1GZPB7Y/yTcRixO/wlI78+2m08tosoRn7A=" crossorigin="anonymous"></script>
+        <script src="lib/jquery.csv.min.js"></script>
+    </head>
+    
+    <body>
+        <div id="content">
+            <br>
+            <h1>ESP32 Partition Editor</h1>
+            
+            <p>
+                <button class="btn btn-info" type="button" data-bs-toggle="collapse" data-bs-target="#help-message" aria-expanded="false" aria-controls="help-message">
+                    How To Use
+                </button>
+                
+                <button class="btn btn-info" type="button" data-bs-toggle="collapse" data-bs-target="#about-message" aria-expanded="false" aria-controls="about-message">
+                    About :)
+                </button>
+                
+                &nbsp;&nbsp;&nbsp;
+                
+                <label for="flash-size-input" class="form-label">Flash Size </label>
+                <input class="form-control" list="flash-sizes" id="flash-size-input" onchange="updateFlashSize()" value="8">
+                <span>MB</span>
+
+            </p>
+            
+            <div class="collapse" id="help-message">
+                <div class="card card-body">
+                    <p>
+                        This is a web tool for editing partition tables for the flash on the ESP32 family of chips.  Partitions tables are written
+                        as CSV files, which are then "compiled" and flashed to the ESP32.  Usually people manually edit partition files, and have
+                        to manually calculate partition sizes and offsets.  
+                    </p>
+                    <p>
+                        This tool aims to provide a graphical interface for setting up 
+                        partitions (and automatically calculating their sizes and offsets).
+                    </p>
+                    <p>
+                    The big table in the middle represents the partition table - the headers are the same as the ESP32 CSV format.  It's got
+                    a few nice features like dropdowns for certain fields.  Here's a rough description of each field:
+                    <dl>
+                        <dt>Name</dt>
+                        <dd>A friendly name for the partition.  Names longer than 16 characters long will be truncated.</dd>
+                        
+                        <dt>Type</dt>
+                        <dd>Usually either <code>app</code> (program code) or <code>data</code> (data storage) (but you can enter other 
+                            types if needed).</dd>
+                        
+                        <dt>Subtype</dt>
+                        <dd>More specific details about what the partition is used for.</dd>
+                        
+                        <dt>Offset</dt>
+                        <dd>Where in flash memory (or how many bytes in) the partition starts.  If this is left blank, it will automatically 
+                            follow on from the last partition</dd>
+                            
+                        <dt>Size</dt>
+                        <dd>The size of the partition in bytes (or kilobytes or megabytes)</dd>
+                        
+                        <dt>Flags</dt>
+                        <dd>Enable or disable any partition flags (the only one at the minute is <code>encrypted</code>.</dd>
+                    </dl>
+                    </p>
+                    <p>
+                        New partitions can be added by clicking the New Partition button.  Partitions can be removed by clicking the bin icon
+                        (<i class="fa fa-trash" aria-hidden="true" style="display: inline;"></i>) beside the partition on the table.
+                    <br>
+                        You can import existing partition tables using the Import CSV button, and export tables to CSV format using the Export
+                        CSV button.
+                    </p>
+                    <p>
+                        When you create a partition (either manually or by importing a CSV), it will show up on the gray bar at the bottom of
+                        the page.  The bar is a graphical representation of the partition layout (the same way that PC partition editors work).
+                        You can resize partitions by dragging the edge of a partition block on the bar, and you can move them (ie: change their
+                        offsets) by dragging them along the bar.  Resizing or dragging these blocks will automatically update the offsets and
+                        sizes in the table!
+                    </p>
+                    <p>
+                        Make sure to specify the size of the flash on the ESP32 you're using (using the input at the top of the page), so that the graphical partition bar can show the
+                        partition sizes relative to the flash size!
+                    </p>
+                    <p>
+                        More details about ESP32 Partition Tables, and the specifics of each field in the table, can be found on the 
+                        <a href="https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/partition-tables.html">
+                            ESP-IDF documentation</a>.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="collapse" id="about-message">
+                <div class="card card-body">
+                
+                    <p>
+                        <h3><em>ESP32 Partition Editor - version 1.0</em></h3>
+                        by atctwo
+                    </p>
+                    
+                    <p>
+                        This was created using the following technologies:
+                        <ul>
+                            <li><a href="https://getbootstrap.com/">Bootstrap 5</a>, for nice looking CSS and UI components</li>
+                            <li><a href="https://jquery.com/">jQuery</a>, as a dependancy for other libraries</li>
+                            <li><a href="https://jqueryui.com/">jQuery UI</a>, for the graphical partition bar</li>
+                            <li><a href="https://forkaweso.me/Fork-Awesome/">Fork Awesome</a>, for awesome icons</li>
+                            <li><a href="https://github.com/isocra/TableDnD">TableDnD</a>, for drag-and-droppable table rows</li>
+                            <li><a href="https://github.com/evanplaice/jquery-csv">jquery-csv</a>, for CSV parsing</li>
+                        </ul>
+                    </p>
+                    
+                    <p>
+                        I used the <a href="https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/partition-tables.html">
+                            ESP-IDF documentation on Partition Tables</a> a lot to create this tool.
+                    </p>
+                    
+                    <p>
+                        You can see the source and report bugs on <a href="https://github.com/atctwo/esp-partition-editor">this project's 
+                            GitHub page</a>!
+                    </p>
+                
+                </div>
+            </div>
+            
+            <!-- partition table -->
+              
+            <table id="partition-table" class="table">
+                <tr class="nodrop nodrag">
+                    <!-- <th></th> -->
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>SubType</th>
+                    <th>Offset</th>
+                    <th>Size</th>
+                    <th>Flags</th>
+                    <th></th>
+                </tr>
+                <!-- <tr>
+                    <td>nvs</td>
+                    <td>data</td>
+                    <td>nvs</td>
+                    <td>0x9000</td>
+                    <td>0x4000</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>nvs</td>
+                    <td>data</td>
+                    <td>nvs</td>
+                    <td>0x9000</td>
+                    <td>0x4000</td>
+                    <td></td>
+                </tr> -->
+            </table>
+            
+            <!-- table operation buttons -->
+            
+            <button type="button" class="btn btn-info" onclick="addPartitionTableRow();">New Partition</button>
+            <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#modal-confirm-clear">Clear All Rows</button>
+            <button type="button" class="btn btn-info" onclick="openFileDialog();">Import CSV</button>
+            <button type="button" class="btn btn-info" onclick="exportCsv();">Generate CSV</button>
+            
+            <!-- clear table confirmation dialogue -->
+            
+            <div class="modal fade" tabindex="-1" id="modal-confirm-clear">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title">Confirm Table Clear</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                      <p>Are you sure you want to remove all the partitions?</p>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                      <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="clearPartitionTable();">Yes</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              
+            <!-- file input for load csv button -->
+            <input type="file" style="display: none" id="csv-input" accept=".csv" onchange="loadCsvFromFile();">
+              
+              
+              
+            <!-- graphical partition editor -->
+            
+            <p>
+                <div id="graphical-partition"></div>
+            </p>
+            
+            
+            <!-- datalists -->
+            
+            <datalist id="ice-cream-flavors">
+                <option value="Chocolate">
+                <option value="Coconut">
+                <option value="Mint">
+                <option value="Strawberry">
+                <option value="Vanilla">
+            </datalist>
+            
+            <datalist id="partition-types">
+                <option value="app">Application Code</option>
+                <option value="data">Data Storage</option>
+            </datalist>
+            
+            <datalist id="partition-subtypes">
+                <optgroup label="app Subtypes">
+                    <option value="factory">[app] Default App Partition</option>
+                    <option value="ota_0">[app] OTA App Slots (0 to 15)</option>
+                    <option value="test">[app] Factory Test and Boot Fallback</option>
+                </optgroup>
+                <optgroup label="data Subtypes">
+                    <option value="ota">[data] Current OTA Partition Data</option>
+                    <option value="phy">[data] PHY Initalisation Data</option>
+                    <option value="nvs">[data] Non Volatile Storage</option>
+                    <option value="nvs_keys">[data] NVS Encryption Keys</option>
+                </optgroup>
+            </datalist>
+            
+            <datalist id="partition-size-suffixes">
+                <option value=" ">bytes</option>
+                <option value="K">kilobytes (1024 bytes)</option>
+                <option value="M">megabytes (1024² bytes)</option>
+            </datalist>
+            
+            <datalist id="flash-sizes">
+                <option value="4"></option>
+                <option value="8"></option>
+                <option value="16"></option>
+                <option value="32"></option>
+            </datalist>
+            
+        </div>
+    </body>
+    
+    <script src="lib/partition_table.js"></script>
+    
+</html>
