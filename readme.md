@@ -2,6 +2,8 @@
 
 This is a web tool for editing ESP32 Partition Tables.  It provides a friendly table thing for manually setting partition details, and a bar thing for graphically visualising and setting partition offsets and sizes (like in PC partition editors).
 
+[The tool is live here!](https://atctwo.co.uk/projects/esp32-partition-editor/)
+
 ![A screenshot of the website](screenshot.png)
 
 # Repository Structure
